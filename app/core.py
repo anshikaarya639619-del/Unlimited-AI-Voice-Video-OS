@@ -1,7 +1,6 @@
 from __future__ import annotations
 import hashlib, json, re, uuid
 from pathlib import Path
-from typing import Iterable
 
 def split_text(text: str, limit: int = 700) -> list[str]:
     """Split on sentence boundaries where possible; never emit an empty chunk."""
@@ -32,7 +31,7 @@ def split_text(text: str, limit: int = 700) -> list[str]:
     return [c for c in chunks if c]
 
 def make_job_id(text: str, key: str | None = None) -> str:
-    seed = key or f"{uuid.uuid4()}:{text}"
+    seed = f"{key}:{text}" if key else f"{uuid.uuid4()}:{text}"
     return hashlib.sha256(seed.encode("utf-8")).hexdigest()[:20]
 
 def save_json(path: Path, data: dict) -> None:
