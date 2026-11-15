@@ -97,6 +97,9 @@ async def create_tts(req: TTSRequest, idempotency_key: Annotated[str | None, Hea
     if req.format.lower() != "wav":
         raise HTTPException(400, "Currently only WAV output is supported.")
     chunk_limit = int(os.getenv("MAX_CHUNK_CHARS", "700"))
+    chunks = split_text(req.text, chunk_limit)
+    if not chunks:
+        raise HTTPException(400, "Text must contain non-whitespace characters.")
     job_id = make_job_id(req.text, idempotency_key)
     folder = JOBS / job_id
     manifest_path = folder / "job.json"
@@ -104,7 +107,7 @@ async def create_tts(req: TTSRequest, idempotency_key: Annotated[str | None, Hea
     if existing and existing.get("status") in ("queued", "running", "completed"):
         return {"job_id": job_id, "status": existing["status"], "reused": True}
     asyncio.create_task(run_tts_job(job_id, req.text, req.voice))
-    return {"job_id": job_id, "status": "queued", "chunks": len(split_text(req.text, chunk_limit))}
+    return {"job_id": job_id, "status": "queued", "chunks": len(chunks)}
 
 @app.get("/v1/jobs/{job_id}")
 async def get_job(job_id: str):
