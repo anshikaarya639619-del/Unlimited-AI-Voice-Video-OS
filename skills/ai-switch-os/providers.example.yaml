@@ -1,0 +1,42 @@
+# Copy this file to providers.yaml and configure only integrations you can use.
+# Never commit API keys. Store secrets in the host's secret manager/environment.
+version: 1
+defaults:
+  free_first: true
+  max_transient_retries: 1
+  quota_retry: false
+  require_confirmation_for_paid: true
+providers:
+  - id: local_openai_compatible
+    label: Local OpenAI-compatible endpoint (e.g. local model server)
+    tasks: [text, coding]
+    access: api
+    base_url_env: LOCAL_AI_BASE_URL
+    api_key_env: LOCAL_AI_API_KEY
+    credential_status: not_configured
+    availability: needs_configuration
+    priority: 10
+  - id: provider_api_backup
+    label: Backup provider API (fill in supported provider and endpoint)
+    tasks: [text, coding, research]
+    access: api
+    base_url_env: BACKUP_AI_BASE_URL
+    api_key_env: BACKUP_AI_API_KEY
+    credential_status: not_configured
+    availability: needs_configuration
+    priority: 20
+  - id: image_api_backup
+    label: Image-generation API backup
+    tasks: [image]
+    access: api
+    base_url_env: IMAGE_AI_BASE_URL
+    api_key_env: IMAGE_AI_API_KEY
+    credential_status: not_configured
+    availability: needs_configuration
+  - id: video_manual_backup
+    label: Video tool (manual workflow until API integration exists)
+    tasks: [video, image_to_video, editing]
+    access: manual
+    credential_status: not_applicable
+    availability: manual_only
+    priority: 30
